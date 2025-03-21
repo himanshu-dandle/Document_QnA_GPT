@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# PDFs and Data
+data/
+*.pdf
+
+# OS files
+.DS_Store
+
+# Streamlit config
+.streamlit/
