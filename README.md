@@ -1,8 +1,9 @@
- 
-# 📘 Document_QnA_GPT: AI-Powered PDF Q&A Assistant
 
-A production-ready GenAI application that allows users to upload any PDF document (e.g., academic material, HR policies, legal papers) and interact with it through natural language queries. Built with OpenAI's GPT, LangChain, FAISS, and Streamlit, the system retrieves and answers questions based on document content in real-time.
+# 📘 Document_QnA_GPT: AI-Powered PDF Question Answering System
 
+> Upload any PDF and ask questions — powered by GPT-4, FAISS & LangChain for real-time answers.
+
+A production-ready GenAI application that allows users to upload any document (e.g., NEET chapters, HR policies, legal papers) and interact with it via natural language questions. It uses OpenAI's GPT-4, FAISS, LangChain, and Streamlit to deliver fast, contextual answers from your document.
 
 ---
 
@@ -95,6 +96,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 		streamlit run app/streamlit_app.py
 
 ## 🌍 Live Demo
+🚧 Coming soon: 1-click Streamlit Cloud deployment
 
 ## Future Work
  1. Add conversational memory (chat history)
