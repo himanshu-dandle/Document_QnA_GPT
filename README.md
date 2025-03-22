@@ -96,7 +96,11 @@ A production-ready GenAI application that allows users to upload any document (e
 		streamlit run app/streamlit_app.py
 
 ## 🌍 Live Demo
-🚧 Coming soon: 1-click Streamlit Cloud deployment
+
+Try it here 👉 [Document_QnA_GPT on Streamlit](https://documentqnagpt-jhgd5jfdsguzgdgftc8huh.streamlit.app)
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://documentqnagpt-jhgd5jfdsguzgdgftc8huh.streamlit.app)
+
 
 ## Future Work
  1. Add conversational memory (chat history)
