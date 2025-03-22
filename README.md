@@ -6,7 +6,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 
 ---
 
-## 🚀 Features
+## Features
 
 - 🧾 Extracts meaningful content from PDF files
 - 🔍 Performs semantic search over document chunks using FAISS
@@ -48,7 +48,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 	└── venv/                     # Virtual environment (excluded)
 
 
-## 🧠 Use Cases
+## Use Cases
 
 - 👨‍🎓 NEET/NCERT Chapter Assistants (Physics, Bio, Chem)
 - 🏢 HR Policy Q&A
@@ -58,7 +58,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Tool/Library      | Purpose                         |
 |-------------------|----------------------------------|
@@ -71,7 +71,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 
 ---
 
-## 📸 Screenshot
+## Screenshot
 
 > _User uploads a NEET Physics chapter (PDF) and asks: "What is inertia?"_
 
@@ -79,7 +79,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 
 ---
 
-## 🧪 How to Run Locally
+##  How to Run Locally
 
 	🔹 Step 1: Clone the repository
 		git clone https://github.com/himanshu-dandle/Document_QnA_GPT.git
@@ -96,9 +96,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
 
 ## 🌍 Live Demo
 
-
-
-##🔹🔮 Future Work
+## Future Work
  1. Add conversational memory (chat history)
  2. Support multiple PDF uploads and indexing
  3. Add unit testing and error handling
@@ -106,7 +104,7 @@ A production-ready GenAI application that allows users to upload any PDF documen
  5. One-click deploy on Streamlit Cloud or Hugging Face Spaces
  6.  Role-based access and document privacy controls
 
-👨‍💻 Author
-Himanshu Dandle
-📧 Email : himanshu.dandle@gmail.com
+##  Author
+	Himanshu Dandle
+	Email : himanshu.dandle@gmail.com
 
