@@ -14,4 +14,4 @@ data/
 .DS_Store
 
 # Streamlit config
-.streamlit/
+#.streamlit/
