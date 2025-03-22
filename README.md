@@ -1,155 +1,106 @@
-# 🚀 Fraud Detection System using Machine Learning  
+ 
+# 📘 Document_QnA_GPT: AI-Powered PDF Q&A Assistant
 
-![GitHub repo size](https://img.shields.io/github/repo-size/himanshu-dandle/fraud-detection-ml?style=flat)  
-![GitHub contributors](https://img.shields.io/github/contributors/himanshu-dandle/fraud-detection-ml?color=blue)  
-![GitHub last commit](https://img.shields.io/github/last-commit/himanshu-dandle/fraud-detection-ml)  
+A production-ready GenAI application that allows users to upload any PDF document (e.g., academic material, HR policies, legal papers) and interact with it through natural language queries. Built with OpenAI's GPT, LangChain, FAISS, and Streamlit, the system retrieves and answers questions based on document content in real-time.
 
-🔗 **Live Web App:** 👉 [Click Here to Try!](https://fraud-detection-ml-pxygeugketyaekpkctz52d.streamlit.app/)
-
-💻 **GitHub Repository:** 👉 [fraud-detection-ml](https://github.com/himanshu-dandle/fraud-detection-ml)  
 
 ---
 
-## 📌 **Project Overview**  
+## 🚀 Features
 
-🚨 **Fraudulent transactions cost billions every year.** This project builds an **AI-powered fraud detection system** that identifies fraudulent transactions in real-time using **Machine Learning (XGBoost, Scikit-Learn)** and is deployed with **FastAPI & Streamlit**.  
+- 🧾 Extracts meaningful content from PDF files
+- 🔍 Performs semantic search over document chunks using FAISS
+- 🤖 Answers questions using Retrieval-Augmented Generation (RAG) with OpenAI GPT
+- 📊 User-friendly Streamlit UI for fast interaction
+- 🔐 Securely handles API keys via `.env` integration
+- 🧩 Modular, extensible architecture (ready for APIs, multi-doc search, etc.)
 
-### ✅ **Key Features:**  
-✔ **Real-Time Fraud Prediction** – Enter transaction data & get fraud probability instantly.  
-✔ **Machine Learning Model** – Uses **XGBoost**, trained on an **imbalanced dataset**.  
-✔ **FastAPI Backend** – Hosted on **Google Cloud Run** for live predictions.  
-✔ **Streamlit Web UI** – User-friendly interface deployed on **Streamlit Cloud**.  
 
 ---
 
-## 🏗 **Tech Stack Used**  
+## 📁 Folder Structure
+Document_QnA_GPT/ ├── app/ # Core application logic (Streamlit, main pipeline) │ ├── main.py # RAG pipeline: extract, embed, answer │ └── streamlit_app.py # Streamlit frontend interface │ ├── data/ # PDF documents for testing (excluded via .gitignore) │ ├── utils/ # Helper scripts (PDF generation, future preprocessing) │ └── generate_sample_pdf.py │ ├── .gitignore # Ignored files/folders ├── requirements.txt # Python dependencies ├── README.md # You're reading it :) └── .env # OpenAI key (not committed)
 
-| Technology | Usage |
-|------------|------------------|
-| **Python** | Programming Language |
-| **XGBoost, Scikit-Learn** | Machine Learning Model |
-| **FastAPI, Uvicorn** | Backend API |
-| **Streamlit** | Frontend Web App |
-| **Google Cloud Run** | API Deployment |
-| **Streamlit Cloud** | Web UI Deployment |
-| **Pandas, NumPy** | Data Processing |
-| **Matplotlib, Seaborn** | Data Visualization |
+## 🧠 Use Cases
+
+- 👨‍🎓 NEET/NCERT Chapter Assistants (Physics, Bio, Chem)
+- 🏢 HR Policy Q&A
+- 📑 Legal Document Understanding
+- 💰 Finance & Compliance Review
+- 📚 Research Paper Summarization & Analysis
 
 ---
 
-## 📂 **Project Structure**  
+## 🛠 Tech Stack
 
-```
-fraud-detection-ml/
-│── data/                    # Raw and processed datasets (ignored in Git)
-│── models/                  # Trained ML models (ignored in Git)
-│── reports/                 # Reports, confusion matrices, AUC curves
-│── scripts/                 # Helper scripts for training & deployment
-│── fraud_detection.ipynb     # Jupyter Notebook for model training
-│── app.py                    # FastAPI backend (Deployed on Google Cloud Run)
-│── streamlit_app.py          # Streamlit frontend (Deployed on Streamlit Cloud)
-│── Dockerfile                # Configuration for FastAPI deployment
-│── requirements.txt          # Dependencies for FastAPI & Streamlit
-│── .gitignore                # Excludes large files from GitHub
-│── .gcloudignore             # Excludes unnecessary files for Google Cloud
-└── README.md                 # Project documentation (this file)
+| Tool/Library      | Purpose                         |
+|-------------------|----------------------------------|
+| `OpenAI GPT-4`    | Natural language understanding  |
+| `LangChain`       | Retrieval-Augmented Generation  |
+| `FAISS`           | Vector similarity search        |
+| `pdfplumber`      | PDF parsing                     |
+| `Streamlit`       | Interactive UI                  |
+| `Python`          | Backend development             |
 
+---
 
+## 📸 Screenshot
 
+> _User uploads a NEET Physics chapter (PDF) and asks: "What is inertia?"_
 
-🛠 How to Run the Project Locally
-✅ 1. Clone the Repository
+![PDF Q&A Screenshot](app/static/screenshot.png)
 
-git clone https://github.com/himanshu-dandle/fraud-detection-ml.git
-cd fraud-detection-ml
-✅ 2. Install Dependencies
-pip install -r requirements.txt
-✅ 3. Run FastAPI Backend (Local Server)
+---
 
-uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-🔹 API will be available at http://localhost:8000/
-🔹 Test it using Postman or cURL.
+## 🧪 How to Run Locally
 
-✅ 4. Run Streamlit Web UI (Local App)
-
-streamlit run streamlit_app.py
-🔹 This will open the web app at http://localhost:8501/
-🔹 Users can input transaction data & check fraud probability!
-
-🚀 How to Deploy (For Advanced Users)
-✅ Deploy FastAPI Backend on Google Cloud Run
-
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/fraud-api
-gcloud run deploy fraud-api --image gcr.io/YOUR_PROJECT_ID/fraud-api --platform managed --region us-central1 --allow-unauthenticated
-🔹 This will host the FastAPI backend online for public use.
-
-✅ Deploy Streamlit Web App on Streamlit Cloud
-1️⃣ Upload the project to GitHub
-2️⃣ Go to Streamlit Cloud
-3️⃣ Select your GitHub Repo
-4️⃣ Set the Main File Path → streamlit_app.py
-5️⃣ Click Deploy 🚀
-
-🔹 After a few minutes, your public Streamlit App will be live!
-
-🔌 API Usage (Example Request & Response)
-✅ POST Request Example
-📌 Send JSON data to FastAPI for fraud detection:
-
-json
+### 🔹 Step 1: Clone the repository
 
 
-{
-    "V1": -1.359,
-    "V2": -0.072,
-    "V3": 2.536,
-    "V4": 1.378,
-    "V5": -0.338,
-    "V6": 0.462,
-    "V7": 0.239,
-    "V8": 0.098,
-    "V9": 0.363,
-    "V10": 0.090,
-    "V11": -0.551,
-    "V12": -0.617,
-    "V13": -0.991,
-    "V14": -0.311,
-    "V15": 1.468,
-    "V16": -0.470,
-    "V17": 0.207,
-    "V18": 0.025,
-    "V19": 0.403,
-    "V20": 0.251,
-    "V21": -0.018,
-    "V22": 0.277,
-    "V23": -0.110,
-    "V24": 0.066,
-    "V25": 0.128,
-    "V26": -0.189,
-    "V27": 0.133,
-    "V28": -0.021,
-    "Hour": 12.5
-}
-✅ Response Example
-json
+git clone https://github.com/himanshu-dandle/Document_QnA_GPT.git
+cd Document_QnA_GPT
 
 
-{
-    "prediction": 0,
-    "fraud_probability": 0.02
-}
-🔹 prediction: 0 → Safe Transaction
-🔹 prediction: 1 → Fraud Detected! 🚨
 
-🎯 Future Improvements
-✅ Enhance Model Performance – Try LSTM, Random Forest, or Neural Networks
-✅ Add More Features – Include location & device ID for fraud detection
-✅ Improve UI – Add graphs & probability distributions in Streamlit
+### 🔹 Step 2: Set up virtual environment
 
-🤝 Contributors
-👨‍💻 Himanshu Dandle
-📌 GitHub: himanshu-dandle
-📌 LinkedIn: Himanshu Dandle
+	python -m venv venv
+	venv\Scripts\activate         # On Windows
+	pip install -r requirements.txt
 
-🔹 If you like this project, give it a ⭐ on GitHub! 🚀
+
+
+###🔹 Step 3: Add OpenAI Key
+
+	Create a .env file:
+	OPENAI_API_KEY=your-openai-key-here
+	
+
+###🔹 Step 4: Run the app
+	streamlit run app/streamlit_app.py
+
+## 🌍 Live Demo
+
+
+>
+
+###🔹🔮 Future Work
+ 💬 Add conversational memory (chat history)
+
+ 📁 Support multiple PDF uploads and indexing
+
+ 🧪 Add unit testing and error handling
+
+ 🌐 REST API version using FastAPI for integration
+
+ ☁️ One-click deploy on Streamlit Cloud or Hugging Face Spaces
+
+ 🔒 Role-based access and document privacy controls
+
+
+)
+
+👨‍💻 Author
+Himanshu Dandle
+📧 Email : himanshu.dandle@gmail.com
 
