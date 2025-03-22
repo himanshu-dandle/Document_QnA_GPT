@@ -58,17 +58,21 @@ Answer: A
     llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.5)
     return llm.invoke(prompt)
 
-# Export Utility: PDF
+# Clean text to avoid UnicodeEncodeError in PDF
+def clean_text_for_pdf(text):
+    return ''.join(c if ord(c) < 256 else '?' for c in text)
 
+# Export Utility: PDF
 def create_pdf_download(content, filename="predicted_questions.pdf"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
-    for line in content.splitlines():
+    safe_content = clean_text_for_pdf(content)
+    for line in safe_content.splitlines():
         pdf.multi_cell(0, 10, line)
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1')  # get PDF as bytes string
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')  # Now safe!
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
     return pdf_output
