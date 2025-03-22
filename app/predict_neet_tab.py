@@ -5,81 +5,105 @@ import os
 from dotenv import load_dotenv
 import io
 from fpdf import FPDF
+import random
 
 # Load environment variables
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# Token-safe character limits
+CHAPTER_LIMIT = 2500  # ~625 tokens
+PAST_LIMIT = 1200     # ~300 tokens
+
 # Function to generate predicted descriptive questions
 def generate_predicted_questions(chapter_text, past_questions_text):
-    prompt = f"""
-You are an expert NEET question paper analyst.
+    chapter_trimmed = chapter_text[:CHAPTER_LIMIT].strip()
+    past_trimmed = past_questions_text[:PAST_LIMIT].strip()
 
-Based on the chapter content below (from Laws of Motion) and the past NEET Physics questions:
+    variation = random.choice([
+        "Give conceptual and numerical mix.",
+        "Focus on derivations and tricky MCQs.",
+        "Emphasize frequently repeated patterns."
+    ])
+
+    prompt = f"""
+You are a senior NEET Physics paper setter with access to past trends and syllabus knowledge.
+
+Using the chapter content and past NEET questions provided below, create **5 diverse and high-probability NEET UG Physics questions** for this year. Prioritize conceptual clarity, frequently repeated topics, derivations, real-world applications, and numericals.
 
 ### Chapter Content:
-{chapter_text[:1500]}
+{chapter_trimmed}
 
-### Past Questions:
-{past_questions_text[:1500]}
+### Past NEET Questions:
+{past_trimmed}
 
-Now, generate 5 high-probability NEET questions for this year on this chapter.
-Focus on trends, concepts asked repeatedly, derivations, and common question types.
+{variation}
+
+🧠 Format:
+1. Descriptive question 1
+2. Descriptive question 2
+...
+
+Ensure no duplication and do not repeat past questions verbatim.
 """
 
-    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.3)
+    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.7, max_tokens=700)
     return llm.invoke(prompt)
+
 
 # Function to generate MCQs
 def generate_mcqs_from_combined_text(chapter_text, past_questions_text, num_questions=5):
+    chapter_trimmed = chapter_text[:CHAPTER_LIMIT].strip()
+    past_trimmed = past_questions_text[:PAST_LIMIT].strip()
+
     prompt = f"""
-You are an AI tutor generating NEET-style multiple choice questions.
+You're an AI tutor generating NEET-style multiple choice questions from the given chapter and past NEET papers.
 
-Using the content below:
+Using the inputs below, generate **{num_questions} NEET-style MCQs**. Each should include:
+- A conceptual or numerical question
+- 4 answer options labeled A–D
+- The correct answer
+- A difficulty tag (Easy, Medium, or Hard)
 
-### Chapter:
-{chapter_text[:1500]}
+### Chapter Summary:
+{chapter_trimmed}
 
-### Past Questions:
-{past_questions_text[:1500]}
+### Past NEET Physics Questions:
+{past_trimmed}
 
-Generate {num_questions} NEET-style multiple choice questions.
-Each should include a question, 4 options labeled A–D, and the correct answer.
-
-Format:
-Q1. Question?
-A. Option 1
-B. Option 2
-C. Option 3
-D. Option 4
-Answer: A
+📘 Format:
+Q1. Question text?
+A. Option A
+B. Option B
+C. Option C
+D. Option D
+Answer: B
+Difficulty: Medium
 """
 
-    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.5)
+    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.7, max_tokens=700)
     return llm.invoke(prompt)
 
-# Clean text to avoid UnicodeEncodeError in PDF
-def clean_text_for_pdf(text):
-    return ''.join(c if ord(c) < 256 else '?' for c in text)
 
 # Export Utility: PDF
-def create_pdf_download(content, filename="predicted_questions.pdf"):
+def create_pdf_download(content):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
-    safe_content = clean_text_for_pdf(content)
-    for line in safe_content.splitlines():
-        pdf.multi_cell(0, 10, line)
+    for line in content.splitlines():
+        clean_line = line.encode("latin-1", errors="ignore").decode("latin-1")
+        pdf.multi_cell(0, 10, clean_line)
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1')  # Now safe!
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
     return pdf_output
 
+
 # Streamlit Tab UI
 def show_predict_neet_tab():
-    st.header("🧠 Predict NEET Questions")
+    st.header("🤑 Predict NEET Questions")
 
     chapter_pdf = st.file_uploader("📄 Upload Chapter PDF (e.g., Laws of Motion)", type="pdf", key="predict_chapter")
     past_papers_pdf = st.file_uploader("📄 Upload Past NEET Questions PDF", type="pdf", key="predict_papers")
