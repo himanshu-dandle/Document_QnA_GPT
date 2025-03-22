@@ -81,30 +81,18 @@ A production-ready GenAI application that allows users to upload any PDF documen
 
 ## 🧪 How to Run Locally
 
-### 🔹 Step 1: Clone the repository
-
-
-git clone https://github.com/himanshu-dandle/Document_QnA_GPT.git
-cd Document_QnA_GPT
-
-
-
-### 🔹 Step 2: Set up virtual environment
-
-	python -m venv venv
-	venv\Scripts\activate         # On Windows
-	pip install -r requirements.txt
-
-
-
-###🔹 Step 3: Add OpenAI Key
-
-	Create a .env file:
-	OPENAI_API_KEY=your-openai-key-here
-	
-
-###🔹 Step 4: Run the app
-	streamlit run app/streamlit_app.py
+	🔹 Step 1: Clone the repository
+		git clone https://github.com/himanshu-dandle/Document_QnA_GPT.git
+		cd Document_QnA_GPT
+	🔹 Step 2: Set up virtual environment
+		python -m venv venv
+		venv\Scripts\activate         # On Windows
+		pip install -r requirements.txt
+	🔹 Step 3: Add OpenAI Key
+		Create a .env file:
+		OPENAI_API_KEY=your-openai-key-here	
+	🔹 Step 4: Run the app
+		streamlit run app/streamlit_app.py
 
 ## 🌍 Live Demo
 
