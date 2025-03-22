@@ -19,7 +19,34 @@ A production-ready GenAI application that allows users to upload any PDF documen
 ---
 
 ## 📁 Folder Structure
-Document_QnA_GPT/ ├── app/ # Core application logic (Streamlit, main pipeline) │ ├── main.py # RAG pipeline: extract, embed, answer │ └── streamlit_app.py # Streamlit frontend interface │ ├── data/ # PDF documents for testing (excluded via .gitignore) │ ├── utils/ # Helper scripts (PDF generation, future preprocessing) │ └── generate_sample_pdf.py │ ├── .gitignore # Ignored files/folders ├── requirements.txt # Python dependencies ├── README.md # You're reading it :) └── .env # OpenAI key (not committed)
+
+	Document_QnA_GPT/
+	│
+	├── app/                      # Streamlit app and core Q&A logic
+	│   ├── main.py               # Embedding, FAISS indexing, QA pipeline
+	│   └── streamlit_app.py      # Streamlit frontend
+	│
+	├── data/                     # Uploaded PDFs (excluded in .gitignore)
+	│   └── lawsofmotion.pdf      # Sample file (optional)
+	│
+	├── utils/                    # PDF creation and helper utilities
+	│   └── generate_sample_pdf.py
+	│
+	├── deployment/               # Future: Dockerfile, Streamlit config, etc.
+	│   ├── Dockerfile            # Optional: Docker setup
+	│   └── requirements.txt      # For deployment (if different)
+	│
+	├── tests/                    # Unit tests (optional)
+	│
+	├── static/                   # Assets like screenshots for README
+	│   └── screenshot.png
+	│
+	├── .env                      # OpenAI API Key (never pushed to GitHub)
+	├── .gitignore                # Ignore venv, .env, data/, etc.
+	├── README.md                 # Project documentation
+	├── requirements.txt          # Project dependencies
+	└── venv/                     # Virtual environment (excluded)
+
 
 ## 🧠 Use Cases
 
@@ -48,7 +75,7 @@ Document_QnA_GPT/ ├── app/ # Core application logic (Streamlit, main pipel
 
 > _User uploads a NEET Physics chapter (PDF) and asks: "What is inertia?"_
 
-![PDF Q&A Screenshot](app/static/screenshot.png)
+![PDF Q&A Screenshot](static/screenshot.png)
 
 ---
 
@@ -82,23 +109,14 @@ cd Document_QnA_GPT
 ## 🌍 Live Demo
 
 
->
 
-###🔹🔮 Future Work
- 💬 Add conversational memory (chat history)
-
- 📁 Support multiple PDF uploads and indexing
-
- 🧪 Add unit testing and error handling
-
- 🌐 REST API version using FastAPI for integration
-
- ☁️ One-click deploy on Streamlit Cloud or Hugging Face Spaces
-
- 🔒 Role-based access and document privacy controls
-
-
-)
+##🔹🔮 Future Work
+ 1. Add conversational memory (chat history)
+ 2. Support multiple PDF uploads and indexing
+ 3. Add unit testing and error handling
+ 4. REST API version using FastAPI for integration
+ 5. One-click deploy on Streamlit Cloud or Hugging Face Spaces
+ 6.  Role-based access and document privacy controls
 
 👨‍💻 Author
 Himanshu Dandle
