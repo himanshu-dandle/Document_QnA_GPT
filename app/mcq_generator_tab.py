@@ -1,19 +1,12 @@
 import streamlit as st
 from langchain_openai import OpenAI
 from main import extract_text_from_pdf
-import os
-from dotenv import load_dotenv
 import io
 import pandas as pd
 from fpdf import FPDF
 
-# Load environment variables
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 # Function to generate MCQs using GPT with difficulty levels
-
-def generate_mcqs_from_text(chapter_text, num_questions=5):
+def generate_mcqs_from_text(chapter_text, num_questions, api_key):
     prompt = f"""
 You are an AI tutor helping NEET UG aspirants.
 Based on the following chapter content, generate {num_questions} NEET-style multiple-choice questions.
@@ -36,12 +29,10 @@ Difficulty: <Easy/Medium/Hard>
 
 Repeat for all questions.
 """
-
-    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.5)
+    llm = OpenAI(openai_api_key=api_key, temperature=0.5)
     return llm.invoke(prompt)
 
 # Utility: Generate PDF file in memory
-
 def create_pdf_download(content, filename="mcqs.pdf"):
     pdf = FPDF()
     pdf.add_page()
@@ -50,12 +41,12 @@ def create_pdf_download(content, filename="mcqs.pdf"):
     for line in content.splitlines():
         pdf.multi_cell(0, 10, line)
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1')  # get PDF as bytes string
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
     return pdf_output
 
-# Utility: Generate CSV file in memory (naive parsing)
+# Utility: Generate CSV file in memory
 def create_csv_download(content, filename="mcqs.csv"):
     questions = []
     current = {}
@@ -86,9 +77,13 @@ def create_csv_download(content, filename="mcqs.csv"):
     return csv_output
 
 # Streamlit Tab UI
-def show_mcq_generator_tab():
+def show_mcq_generator_tab(api_key):
     st.header("📝 Generate NEET-style MCQs")
-    
+
+    if not api_key:
+        st.warning("Please enter your OpenAI API key on the home tab to use this feature.")
+        return
+
     chapter_pdf = st.file_uploader("📄 Upload Chapter PDF (e.g., Laws of Motion)", type="pdf", key="mcq_chapter_pdf")
     num_questions = st.selectbox("📌 Number of MCQs to generate", options=[3, 5, 10], index=1)
 
@@ -96,7 +91,7 @@ def show_mcq_generator_tab():
         if st.button("🧠 Generate MCQs"):
             with st.spinner("Generating multiple choice questions with difficulty levels..."):
                 chapter_text = extract_text_from_pdf(chapter_pdf)
-                result = generate_mcqs_from_text(chapter_text, num_questions)
+                result = generate_mcqs_from_text(chapter_text, num_questions, api_key)
 
                 st.success(f"Here are {num_questions} NEET-style MCQs with difficulty tags:")
                 st.markdown(f"""```text\n{result}```""")

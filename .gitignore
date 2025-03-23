@@ -13,5 +13,5 @@ data/
 # OS files
 .DS_Store
 
-# Streamlit config
-#.streamlit/
+# Streamlit config (ignore user-specific settings)
+.streamlit/

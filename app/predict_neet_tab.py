@@ -1,22 +1,35 @@
 import streamlit as st
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 from main import extract_text_from_pdf
-import os
-from dotenv import load_dotenv
 import io
 from fpdf import FPDF
 import random
 
-# Load environment variables
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Limits for GPT-4 Turbo
+CHAPTER_LIMIT = 6000
+PAST_LIMIT = 4000
 
-# Token-safe character limits
-CHAPTER_LIMIT = 2500  # ~625 tokens
-PAST_LIMIT = 1200     # ~300 tokens
+# Few-shot examples for better MCQ generation
+FEW_SHOT_EXAMPLES = """
+Q1. A block of mass 2kg is placed on a frictionless surface. If a force of 10N is applied, what is its acceleration?
+A. 5 m/s^2
+B. 10 m/s^2
+C. 2 m/s^2
+D. 20 m/s^2
+Answer: A
+Difficulty: Medium
+
+Q2. Which law of motion defines the relationship F = ma?
+A. First Law
+B. Second Law
+C. Third Law
+D. Newton’s Universal Law
+Answer: B
+Difficulty: Easy
+"""
 
 # Function to generate predicted descriptive questions
-def generate_predicted_questions(chapter_text, past_questions_text):
+def generate_predicted_questions(chapter_text, past_questions_text, subject, api_key):
     chapter_trimmed = chapter_text[:CHAPTER_LIMIT].strip()
     past_trimmed = past_questions_text[:PAST_LIMIT].strip()
 
@@ -27,9 +40,9 @@ def generate_predicted_questions(chapter_text, past_questions_text):
     ])
 
     prompt = f"""
-You are a senior NEET Physics paper setter with access to past trends and syllabus knowledge.
+You are a senior NEET {subject} paper setter with deep insight into past trends and syllabus.
 
-Using the chapter content and past NEET questions provided below, create **5 diverse and high-probability NEET UG Physics questions** for this year. Prioritize conceptual clarity, frequently repeated topics, derivations, real-world applications, and numericals.
+Using the chapter content and past NEET questions provided below, generate **5 varied and high-probability NEET UG questions**. Prioritize conceptual clarity, repeated topics, and relevant numericals.
 
 ### Chapter Content:
 {chapter_trimmed}
@@ -44,31 +57,30 @@ Using the chapter content and past NEET questions provided below, create **5 div
 2. Descriptive question 2
 ...
 
-Ensure no duplication and do not repeat past questions verbatim.
+Avoid copying old questions exactly.
 """
 
-    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.7, max_tokens=700)
-    return llm.invoke(prompt)
-
+    llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.5, openai_api_key=api_key)
+    response = llm.invoke(prompt)
+    return response.content if hasattr(response, "content") else str(response)
 
 # Function to generate MCQs
-def generate_mcqs_from_combined_text(chapter_text, past_questions_text, num_questions=5):
+def generate_mcqs_from_combined_text(chapter_text, past_questions_text, api_key, num_questions=5):
     chapter_trimmed = chapter_text[:CHAPTER_LIMIT].strip()
     past_trimmed = past_questions_text[:PAST_LIMIT].strip()
 
     prompt = f"""
-You're an AI tutor generating NEET-style multiple choice questions from the given chapter and past NEET papers.
+You're an AI tutor generating NEET-style MCQs from the given chapter and past NEET papers.
 
-Using the inputs below, generate **{num_questions} NEET-style MCQs**. Each should include:
-- A conceptual or numerical question
-- 4 answer options labeled A–D
-- The correct answer
-- A difficulty tag (Easy, Medium, or Hard)
+Use the format shown below:
+{FEW_SHOT_EXAMPLES}
+
+Now generate {num_questions} new questions based on:
 
 ### Chapter Summary:
 {chapter_trimmed}
 
-### Past NEET Physics Questions:
+### Past NEET Questions:
 {past_trimmed}
 
 📘 Format:
@@ -81,11 +93,11 @@ Answer: B
 Difficulty: Medium
 """
 
-    llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.7, max_tokens=700)
-    return llm.invoke(prompt)
+    llm = ChatOpenAI(model="gpt-4-turbo", temperature=0.7, openai_api_key=api_key)
+    response = llm.invoke(prompt)
+    return response.content if hasattr(response, "content") else str(response)
 
-
-# Export Utility: PDF
+# PDF Export Utility
 def create_pdf_download(content):
     pdf = FPDF()
     pdf.add_page()
@@ -100,13 +112,17 @@ def create_pdf_download(content):
     pdf_output.seek(0)
     return pdf_output
 
-
-# Streamlit Tab UI
-def show_predict_neet_tab():
+# Streamlit UI
+def show_predict_neet_tab(api_key):
     st.header("🤑 Predict NEET Questions")
 
-    chapter_pdf = st.file_uploader("📄 Upload Chapter PDF (e.g., Laws of Motion)", type="pdf", key="predict_chapter")
-    past_papers_pdf = st.file_uploader("📄 Upload Past NEET Questions PDF", type="pdf", key="predict_papers")
+    if not api_key:
+        st.warning("Please enter your OpenAI API key on the home tab to use this feature.")
+        return
+
+    subject = st.selectbox("🧪 Select Subject", ["Physics", "Chemistry", "Biology"])
+    chapter_pdf = st.file_uploader("📄 Upload Chapter PDF", type="pdf", key="predict_chapter")
+    past_papers_pdf = st.file_uploader("📄 Upload Past NEET Papers", type="pdf", key="predict_papers")
 
     if chapter_pdf and past_papers_pdf:
         if st.button("🔮 Generate Predicted Questions + MCQs"):
@@ -114,8 +130,8 @@ def show_predict_neet_tab():
                 chapter_text = extract_text_from_pdf(chapter_pdf)
                 past_questions_text = extract_text_from_pdf(past_papers_pdf)
 
-                result = generate_predicted_questions(chapter_text, past_questions_text)
-                mcqs = generate_mcqs_from_combined_text(chapter_text, past_questions_text)
+                result = generate_predicted_questions(chapter_text, past_questions_text, subject, api_key)
+                mcqs = generate_mcqs_from_combined_text(chapter_text, past_questions_text, api_key)
 
                 st.success("Here are 5 high-probability NEET UG questions:")
                 st.markdown(f"""```text\n{result}```""")

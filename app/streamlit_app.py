@@ -3,7 +3,6 @@ import streamlit as st
 import pdfplumber
 import numpy as np
 import faiss
-from dotenv import load_dotenv
 
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, OpenAI
@@ -13,11 +12,17 @@ from langchain.chains import RetrievalQA
 from predict_neet_tab import show_predict_neet_tab
 from mcq_generator_tab import show_mcq_generator_tab
 
-# Load environment variables
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# ✅ MUST be first Streamlit command
+st.set_page_config(page_title="📄 AI-Powered PDF App", layout="centered")
 
-# Utility Functions
+# 🔐 Ask for OpenAI API Key only once
+if "OPENAI_API_KEY" not in st.session_state or not st.session_state["OPENAI_API_KEY"]:
+    st.session_state["OPENAI_API_KEY"] = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+
+# Make it available globally
+OPENAI_API_KEY = st.session_state.get("OPENAI_API_KEY", "")
+
+# Utility: Extract text from PDF
 def extract_text_from_pdf(file):
     text = ""
     with pdfplumber.open(file) as pdf:
@@ -27,14 +32,17 @@ def extract_text_from_pdf(file):
                 text += page_text + "\n"
     return text
 
+# Utility: Split into chunks
 def split_text(text):
     splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50, separator="\n")
     return splitter.split_text(text)
 
+# Utility: Build FAISS vector store
 def build_vector_store(text_chunks):
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
     return LangchainFAISS.from_texts(text_chunks, embedding=embeddings), embeddings
 
+# Utility: Answer question using vector search + LLM
 def answer_question(query, vector_store, embeddings):
     retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 2})
     llm = OpenAI(openai_api_key=OPENAI_API_KEY, temperature=0)
@@ -42,7 +50,7 @@ def answer_question(query, vector_store, embeddings):
     result = qa.invoke(query)
     return result['result'] if isinstance(result, dict) and 'result' in result else result
 
-# Main PDF Q&A UI
+# Tab 1: Ask Your PDF
 def show_pdf_qa_tab():
     st.header("📘 Ask Your PDF")
     uploaded_file = st.file_uploader("📤 Upload a PDF file", type="pdf")
@@ -62,17 +70,19 @@ def show_pdf_qa_tab():
                 st.markdown("### 🧠 Answer:")
                 st.write({"query": question, "result": answer})
 
-# Streamlit App Tabs
-st.set_page_config(page_title="📄 AI-Powered PDF App", layout="centered")
+# App Layout
 st.title("📄 AI-Powered Document Assistant")
 
-tab1, tab2, tab3 = st.tabs(["📘 Ask Your PDF", "🧠 Predict NEET Questions", "📝 Generate MCQs"])
+if OPENAI_API_KEY:
+    tab1, tab2, tab3 = st.tabs(["📘 Ask Your PDF", "🧠 Predict NEET Questions", "📝 Generate MCQs"])
 
-with tab1:
-    show_pdf_qa_tab()
+    with tab1:
+        show_pdf_qa_tab()
 
-with tab2:
-    show_predict_neet_tab()
+    with tab2:
+        show_predict_neet_tab(OPENAI_API_KEY)  # ✅ Pass API key to tab
 
-with tab3:
-    show_mcq_generator_tab()
+    with tab3:
+        show_mcq_generator_tab(OPENAI_API_KEY)  # ✅ Pass API key to tab
+else:
+    st.warning("Please enter your OpenAI API key to use the application.")
