@@ -65,7 +65,7 @@ Avoid copying old questions exactly.
     return response.content if hasattr(response, "content") else str(response)
 
 # Function to generate MCQs
-def generate_mcqs_from_combined_text(chapter_text, past_questions_text, api_key, num_questions=5):
+def generate_mcqs_from_combined_text(chapter_text, past_questions_text, num_questions, api_key):
     chapter_trimmed = chapter_text[:CHAPTER_LIMIT].strip()
     past_trimmed = past_questions_text[:PAST_LIMIT].strip()
 
@@ -116,10 +116,6 @@ def create_pdf_download(content):
 def show_predict_neet_tab(api_key):
     st.header("🤑 Predict NEET Questions")
 
-    if not api_key:
-        st.warning("Please enter your OpenAI API key on the home tab to use this feature.")
-        return
-
     subject = st.selectbox("🧪 Select Subject", ["Physics", "Chemistry", "Biology"])
     chapter_pdf = st.file_uploader("📄 Upload Chapter PDF", type="pdf", key="predict_chapter")
     past_papers_pdf = st.file_uploader("📄 Upload Past NEET Papers", type="pdf", key="predict_papers")
@@ -131,7 +127,7 @@ def show_predict_neet_tab(api_key):
                 past_questions_text = extract_text_from_pdf(past_papers_pdf)
 
                 result = generate_predicted_questions(chapter_text, past_questions_text, subject, api_key)
-                mcqs = generate_mcqs_from_combined_text(chapter_text, past_questions_text, api_key)
+                mcqs = generate_mcqs_from_combined_text(chapter_text, past_questions_text, 5, api_key)
 
                 st.success("Here are 5 high-probability NEET UG questions:")
                 st.markdown(f"""```text\n{result}```""")

@@ -15,12 +15,12 @@ from mcq_generator_tab import show_mcq_generator_tab
 # ✅ MUST be first Streamlit command
 st.set_page_config(page_title="📄 AI-Powered PDF App", layout="centered")
 
-# 🔐 Ask for OpenAI API Key only once
-if "OPENAI_API_KEY" not in st.session_state or not st.session_state["OPENAI_API_KEY"]:
-    st.session_state["OPENAI_API_KEY"] = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+# ✅ Read OpenAI API key from secrets (for Streamlit Cloud)
+OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY", "")
 
-# Make it available globally
-OPENAI_API_KEY = st.session_state.get("OPENAI_API_KEY", "")
+if not OPENAI_API_KEY:
+    st.error("❌ Please set your OpenAI API key in Streamlit Cloud secrets.")
+    st.stop()
 
 # Utility: Extract text from PDF
 def extract_text_from_pdf(file):
@@ -73,16 +73,13 @@ def show_pdf_qa_tab():
 # App Layout
 st.title("📄 AI-Powered Document Assistant")
 
-if OPENAI_API_KEY:
-    tab1, tab2, tab3 = st.tabs(["📘 Ask Your PDF", "🧠 Predict NEET Questions", "📝 Generate MCQs"])
+tab1, tab2, tab3 = st.tabs(["📘 Ask Your PDF", "🧠 Predict NEET Questions", "📝 Generate MCQs"])
 
-    with tab1:
-        show_pdf_qa_tab()
+with tab1:
+    show_pdf_qa_tab()
 
-    with tab2:
-        show_predict_neet_tab(OPENAI_API_KEY)  # ✅ Pass API key to tab
+with tab2:
+    show_predict_neet_tab(OPENAI_API_KEY)  # ✅ pass the key here
 
-    with tab3:
-        show_mcq_generator_tab(OPENAI_API_KEY)  # ✅ Pass API key to tab
-else:
-    st.warning("Please enter your OpenAI API key to use the application.")
+with tab3:
+    show_mcq_generator_tab(OPENAI_API_KEY)  # ✅ pass the key here

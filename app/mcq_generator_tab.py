@@ -33,7 +33,7 @@ Repeat for all questions.
     return llm.invoke(prompt)
 
 # Utility: Generate PDF file in memory
-def create_pdf_download(content, filename="mcqs.pdf"):
+def create_pdf_download(content):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -47,7 +47,7 @@ def create_pdf_download(content, filename="mcqs.pdf"):
     return pdf_output
 
 # Utility: Generate CSV file in memory
-def create_csv_download(content, filename="mcqs.csv"):
+def create_csv_download(content):
     questions = []
     current = {}
     for line in content.splitlines():
@@ -79,10 +79,6 @@ def create_csv_download(content, filename="mcqs.csv"):
 # Streamlit Tab UI
 def show_mcq_generator_tab(api_key):
     st.header("📝 Generate NEET-style MCQs")
-
-    if not api_key:
-        st.warning("Please enter your OpenAI API key on the home tab to use this feature.")
-        return
 
     chapter_pdf = st.file_uploader("📄 Upload Chapter PDF (e.g., Laws of Motion)", type="pdf", key="mcq_chapter_pdf")
     num_questions = st.selectbox("📌 Number of MCQs to generate", options=[3, 5, 10], index=1)
