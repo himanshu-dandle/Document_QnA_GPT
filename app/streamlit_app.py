@@ -15,11 +15,18 @@ from mcq_generator_tab import show_mcq_generator_tab
 # ✅ MUST be first Streamlit command
 st.set_page_config(page_title="📄 AI-Powered PDF App", layout="centered")
 
-# ✅ Read OpenAI API key from secrets (for Streamlit Cloud)
-OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY", "")
+# ✅ Get OpenAI API Key from secrets or input
+if "OPENAI_API_KEY" not in st.session_state:
+    if "OPENAI_API_KEY" in st.secrets:
+        st.session_state["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+    else:
+        st.session_state["OPENAI_API_KEY"] = st.text_input("🔑 Enter your OpenAI API Key", type="password")
 
+OPENAI_API_KEY = st.session_state.get("OPENAI_API_KEY", "")
+
+# Stop execution if key not provided
 if not OPENAI_API_KEY:
-    st.error("❌ Please set your OpenAI API key in Streamlit Cloud secrets.")
+    st.warning("Please enter your OpenAI API key to use the app.")
     st.stop()
 
 # Utility: Extract text from PDF
@@ -79,7 +86,7 @@ with tab1:
     show_pdf_qa_tab()
 
 with tab2:
-    show_predict_neet_tab(OPENAI_API_KEY)  # ✅ pass the key here
+    show_predict_neet_tab(OPENAI_API_KEY)
 
 with tab3:
-    show_mcq_generator_tab(OPENAI_API_KEY)  # ✅ pass the key here
+    show_mcq_generator_tab(OPENAI_API_KEY)
