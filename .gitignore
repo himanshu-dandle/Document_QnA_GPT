@@ -15,3 +15,7 @@ data/
 
 # Streamlit config (ignore user-specific settings)
 .streamlit/
+
+
+# VS Code settings (optional)
+.vscode/
