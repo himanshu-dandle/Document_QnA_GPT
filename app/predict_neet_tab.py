@@ -27,7 +27,7 @@ Answer: B
 Difficulty: Easy
 """
 
-# Initialize session state
+# ✅ Initialize session variables safely
 if "chapter_text_map" not in st.session_state:
     st.session_state.chapter_text_map = {}
 
@@ -63,19 +63,19 @@ def generate_mcqs_from_combined_text(
         difficulty_instruction = f"\n- Only include {difficulty_filter.lower()} difficulty questions." if difficulty_filter != "All" else ""
 
         prompt = f"""
-You are a senior NEET Physics paper setter with expertise in recent question trends (NEET 2023, 2024, etc.).
+You are a senior NEET Physics paper setter with expertise in recent NEET trends (2023-24).
 
-Your task is to generate {questions_per_chunk} **NEET-style MCQs only** (no descriptive), with the following criteria:
-- Ensure a balance between conceptual and numerical questions (aim for ~50% conceptual).
-- Use recent NEET trends (e.g., capacitors, oscillations, kinematics).{logic_instruction}{type_instruction}{difficulty_instruction}
-- Add difficulty tag: Easy, Medium, Hard.
-- Tag each question with the chapter name: {chapter_name}
-- Do not repeat or reuse common questions already seen in NEET papers.
+Generate {questions_per_chunk} NEET-style MCQs only (no descriptive), with:
+- Conceptual and numerical balance (~50%)
+- Follow latest NEET patterns{logic_instruction}{type_instruction}{difficulty_instruction}
+- Add difficulty tag (Easy/Medium/Hard)
+- Tag chapter: {chapter_name}
+- Do not repeat common old questions.
 
 Format:
 {FEW_SHOT_EXAMPLES}
 
-### Chapter Summary:
+### Chapter:
 {chunk_trimmed}
 
 ### Past NEET Questions:
@@ -117,37 +117,31 @@ def show_predict_neet_tab(openai_key):
     num_questions = st.selectbox("🔹 Number of MCQs to Generate", [5, 10, 20, 25, 30, 50], index=3)
     exclude_logic = st.toggle("🚫 Exclude Logic/Digital Electronics Questions", value=False)
 
-    # Upload PDFs
-    chapter_pdfs = st.file_uploader("📄 Upload ALL Chapter PDFs", type="pdf", key="predict_chapter", accept_multiple_files=True)
-    past_papers_pdfs = st.file_uploader("📄 Upload Past NEET Question Papers (1 or more)", type="pdf", key="predict_papers", accept_multiple_files=True)
+    chapter_pdfs = st.file_uploader("📄 Upload Chapter PDFs", type="pdf", key="predict_chapter", accept_multiple_files=True)
+    past_papers_pdfs = st.file_uploader("📄 Upload Past NEET Papers", type="pdf", key="predict_papers", accept_multiple_files=True)
 
-    # Store chapter text map
+    # ✅ Read chapters into session
     if chapter_pdfs:
         for pdf in chapter_pdfs:
             name = pdf.name.replace(".pdf", "")
             if name not in st.session_state.chapter_text_map:
                 st.session_state.chapter_text_map[name] = extract_text_from_pdf(pdf)
 
-    # Store past questions once
+    # ✅ Read past questions once
     if past_papers_pdfs and not st.session_state.past_questions_text:
         all_past_texts = [extract_text_from_pdf(pdf) for pdf in past_papers_pdfs]
         st.session_state.past_questions_text = "\n".join(all_past_texts)
 
     available_chapters = [c for c in st.session_state.chapter_text_map if c not in st.session_state.used_chapter_names]
+
     if available_chapters:
-        selected_chapters = st.multiselect("📌 Select Chapter(s) to focus (leave empty for all unused)", available_chapters, default=available_chapters)
+        selected_chapters = st.multiselect("📌 Select Chapter(s) to focus", available_chapters, default=available_chapters)
     else:
         selected_chapters = []
 
-    # Reset option
-    if st.button("🔁 Reset Used Chapters"):
-        st.session_state.used_chapter_names.clear()
-        st.success("✅ Chapters reset! You can now reuse all uploaded chapters.")
-
-    # Generate
     if st.button("🔮 Generate NEET MCQs"):
         if not selected_chapters:
-            st.error("⚠️ No chapters selected or available. Upload more PDFs or reset the app.")
+            st.error("⚠️ No chapters selected or available. Upload more or reset.")
             return
 
         selected_chunks = [(name, st.session_state.chapter_text_map[name]) for name in selected_chapters]
@@ -164,9 +158,10 @@ def show_predict_neet_tab(openai_key):
             difficulty_filter=difficulty
         )
 
-        st.success(f"Here are {num_questions} NEET-style MCQs:")
+        st.success(f"✅ {num_questions} NEET MCQs generated!")
         st.markdown(f"""```text\n{mcqs}```""")
         st.download_button("⬇️ Download MCQs PDF", create_pdf_download(mcqs), file_name="mcqs.pdf")
 
-    elif not chapter_pdfs or not past_papers_pdfs:
-        st.info("📥 Please upload both chapter PDFs and at least one NEET question paper PDF.")
+    if st.button("🔁 Reset Used Chapters"):
+        st.session_state.used_chapter_names.clear()
+        st.success("✅ Chapters reset! You can reuse all uploaded chapters.")
