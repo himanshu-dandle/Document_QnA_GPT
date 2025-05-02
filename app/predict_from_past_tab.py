@@ -9,19 +9,19 @@ import hashlib
 PAST_LIMIT = 4000
 
 FEW_SHOT_EXAMPLES = """
-Q1. A ball is thrown vertically upwards with a velocity of 20 m/s. What is its maximum height?
-A. 10 m
-B. 15 m
-C. 20 m
-D. 25 m
-Answer: C
+Q1. A capacitor of 5 μF is charged to a potential difference of 200 V. What is the energy stored?
+A. 0.1 J
+B. 0.05 J
+C. 0.25 J
+D. 0.5 J
+Answer: A
 Difficulty: Medium
 
-Q2. Which law states that energy can neither be created nor destroyed?
-A. Newton's First Law
-B. Law of Conservation of Energy
-C. Coulomb's Law
-D. Ohm's Law
+Q2. The phenomenon responsible for the twinkling of stars is:
+A. Reflection
+B. Refraction
+C. Scattering
+D. Total internal reflection
 Answer: B
 Difficulty: Easy
 """
@@ -32,27 +32,34 @@ def hash_question_block(mcq_block):
     return hashlib.md5(mcq_block.strip().encode()).hexdigest()
 
 def generate_mcqs_from_past_only(
-    past_questions_text, openai_key, num_questions=25
+    past_questions_text, openai_key, num_questions=25, difficulty_filter="All"
 ):
+    difficulty_instruction = ""
+    if difficulty_filter != "All":
+        difficulty_instruction = f"\n- Focus ONLY on {difficulty_filter.upper()} difficulty questions."
+
     prompt = f"""
-📢 **ROLE:** You are a **top-level NEET UG 2025 paper setter** (Physics/Chemistry/Biology expert).
+📝 **ROLE:** You are part of a **top NEET UG 2025 question paper committee** (Physics/Chemistry/Biology).
 
-🗓 **Context:** The NEET UG 2025 exam will be held on **4 May 2025.**
+📅 **Exam:** NEET UG 2025 will be held on **4 May 2025.**
 
-🔍 **Your task:** Predict {num_questions} **high-quality NEET-style MCQs ONLY using the patterns from past NEET papers** (given below).
+🚩 **Objective:** Predict {num_questions} **NEET-style MCQs** based STRICTLY on past NEET exam trends (provided below).
 
-✅ **Guidelines:**
-- Carefully analyze the **patterns & difficulty levels** in past NEET papers.
-- Predict future questions smartly (rephrase + innovate).
-- Balance the set: ensure more **Medium and Hard** difficulty questions, but include a few Easy as well.
-- Cover a diverse range of topics (don't cluster one topic).
-- Add **Difficulty: Easy, Medium, Hard** for each question.
-- ✋ **Do NOT copy any question word-for-word.**
+✅ **Strict Rules:**
+- Study the question patterns, topics & complexity from past papers.
+- Rephrase and innovate to predict fresh but realistic questions.
+- NO direct repetition; each question must look fresh yet aligned with NEET's standards.
+- Include:  
+   - Options (A/B/C/D)  
+   - Correct answer at the end  
+   - Difficulty tag (Easy, Medium, Hard)  
+- Ensure excellent topic coverage (no bias).  
+- Aim for more **Medium and Hard** questions to make it realistic.{difficulty_instruction}
 
-✍️ **Example format:**
+💡 **Example format:**
 {FEW_SHOT_EXAMPLES}
 
-### 📝 Past NEET Questions:
+### 🗂 Past NEET Questions:
 {past_questions_text[:PAST_LIMIT]}
 """
 
@@ -95,6 +102,13 @@ def show_predict_from_past_tab(openai_key):
         key="past_num_questions_select"
     )
 
+    difficulty_filter = st.selectbox(
+        "🎯 Focus on Difficulty Level",
+        ["All", "Easy", "Medium", "Hard"],
+        index=0,
+        key="past_difficulty_select"
+    )
+
     past_papers_pdfs = st.file_uploader(
         "📄 Upload Past NEET Question Papers (1 or more)",
         type="pdf",
@@ -111,7 +125,8 @@ def show_predict_from_past_tab(openai_key):
                 mcqs = generate_mcqs_from_past_only(
                     past_questions_text,
                     openai_key,
-                    num_questions=num_questions
+                    num_questions=num_questions,
+                    difficulty_filter=difficulty_filter
                 )
 
                 st.success(f"Here are {num_questions} NEET-style MCQs predicted!")
