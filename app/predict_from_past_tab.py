@@ -28,30 +28,31 @@ Difficulty: Easy
 
 seen_question_hashes_past = set()
 
-
 def hash_question_block(mcq_block):
     return hashlib.md5(mcq_block.strip().encode()).hexdigest()
-
 
 def generate_mcqs_from_past_only(
     past_questions_text, openai_key, num_questions=25
 ):
     prompt = f"""
-You are a very expert senior NEET UG examination paper setter who can predict the questions  for year 2025 which will held on 4-may-2025
+📢 **ROLE:** You are a **top-level NEET UG 2025 paper setter** (Physics/Chemistry/Biology expert).
 
-Generate {num_questions} **high-quality NEET-style MCQs only** based **only on past NEET papers** provided below.
+🗓 **Context:** The NEET UG 2025 exam will be held on **4 May 2025.**
 
-Guidelines:
-- Predict future-style questions smartly based only on past papers.
-- Ensure diversity across different topics.
-- Include a mix of Easy, Medium, and Hard questions however focus more on hard and medium 
-- Add Difficulty level tag for each question.
-- Avoid copying questions exactly; rephrase and innovate.
+🔍 **Your task:** Predict {num_questions} **high-quality NEET-style MCQs ONLY using the patterns from past NEET papers** (given below).
 
-Format:
+✅ **Guidelines:**
+- Carefully analyze the **patterns & difficulty levels** in past NEET papers.
+- Predict future questions smartly (rephrase + innovate).
+- Balance the set: ensure more **Medium and Hard** difficulty questions, but include a few Easy as well.
+- Cover a diverse range of topics (don't cluster one topic).
+- Add **Difficulty: Easy, Medium, Hard** for each question.
+- ✋ **Do NOT copy any question word-for-word.**
+
+✍️ **Example format:**
 {FEW_SHOT_EXAMPLES}
 
-### Past NEET Questions:
+### 📝 Past NEET Questions:
 {past_questions_text[:PAST_LIMIT]}
 """
 
@@ -71,7 +72,6 @@ Format:
 
     return "\n\n".join(all_mcqs_list)
 
-
 def create_pdf_download(content):
     pdf = FPDF()
     pdf.add_page()
@@ -85,7 +85,6 @@ def create_pdf_download(content):
     buffer.seek(0)
     return buffer
 
-
 def show_predict_from_past_tab(openai_key):
     st.header("📚 Predict NEET MCQs from Past Papers Only")
 
@@ -93,8 +92,9 @@ def show_predict_from_past_tab(openai_key):
         "🔹 Number of MCQs to Generate",
         [5, 10, 20, 25, 30, 50],
         index=3,
-        key="past_tab_num_questions"
+        key="past_num_questions_select"
     )
+
     past_papers_pdfs = st.file_uploader(
         "📄 Upload Past NEET Question Papers (1 or more)",
         type="pdf",
@@ -103,7 +103,7 @@ def show_predict_from_past_tab(openai_key):
     )
 
     if past_papers_pdfs:
-        if st.button("🔮 Generate MCQs from Past Papers", key="past_tab_generate_button"):
+        if st.button("🔮 Generate MCQs from Past Papers", key="past_generate_button"):
             with st.spinner("Analyzing past papers and predicting questions..."):
                 all_past_texts = [extract_text_from_pdf(pdf) for pdf in past_papers_pdfs]
                 past_questions_text = "\n".join(all_past_texts)
@@ -120,7 +120,7 @@ def show_predict_from_past_tab(openai_key):
                     "⬇️ Download MCQs PDF",
                     create_pdf_download(mcqs),
                     file_name="mcqs_from_past.pdf",
-                    key="past_tab_download_button"
+                    key="past_download_button"
                 )
     else:
         st.info("📥 Please upload at least one NEET past paper PDF.")

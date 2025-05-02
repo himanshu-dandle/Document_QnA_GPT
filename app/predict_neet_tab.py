@@ -48,27 +48,35 @@ def generate_mcqs_from_combined_text(
         chunk_trimmed = chunk[:CHAPTER_LIMIT].strip()
         past_trimmed = past_questions_text[:PAST_LIMIT].strip()
 
-        logic_instruction = "\n- Do not include questions related to logic gates or digital electronics." if exclude_logic else ""
-        type_instruction = f"\n- Only include {question_type.lower()} questions." if question_type != "Mixed" else ""
-        difficulty_instruction = f"\n- Only include {difficulty_filter.lower()} difficulty questions." if difficulty_filter != "All" else ""
+        logic_instruction = "\n- 🚫 Do not include Logic Gates or Digital Electronics questions." if exclude_logic else ""
+        type_instruction = f"\n- Only include **{question_type.lower()}** questions." if question_type != "Mixed" else ""
+        difficulty_instruction = (
+            f"\n- Prioritize **{difficulty_filter.lower()}** difficulty questions."
+            if difficulty_filter != "All" else "\n- Focus more on **Medium and Hard** questions overall."
+        )
 
         prompt = f"""
-You are a senior and very expoert  NEET UG examination  paper setter with expertise in recent question trends (NEET 2023, 2024, etc.) and  who can predict the questions  for year 2025 which will held on 4-may-2025
+📢 **ROLE:** You are a **senior NEET UG 2025 paper setter** (Physics/Chemistry/Biology expert).
 
-Your task is to generate {questions_per_chunk} **NEET-style MCQs only** (no descriptive), with the following criteria:
-- Ensure a balance between conceptual and numerical questions (aim for ~50% conceptual).
-- Use recent NEET trends (e.g., capacitors, oscillations, kinematics).{logic_instruction}{type_instruction}{difficulty_instruction}
-- Add difficulty tag: Easy, Medium, Hard.
-- Tag each question with the chapter name: {chapter_name}
-- Do not repeat or reuse common questions already seen in NEET papers.
+🗓 **Context:** The NEET UG 2025 exam will be held on **4 May 2025.**
 
-Format:
+🔍 **Your task:** Predict {questions_per_chunk} **high-quality NEET-style MCQs** (no descriptive questions), based on the **chapter content + past NEET papers** provided.
+
+✅ **Rules:**
+- Aim for ~50% conceptual and 50% numerical questions.
+- Strongly align with recent NEET trends (2023, 2024) and syllabus (e.g., capacitors, oscillations, kinematics in Physics).
+{logic_instruction}{type_instruction}{difficulty_instruction}
+- Tag each question with the chapter: **{chapter_name}**.
+- Add **Difficulty: Easy, Medium, Hard**.
+- 🚫 Do NOT copy old questions word-for-word; rephrase, innovate, and focus on real NEET standard.
+
+✍️ **Example format:**
 {FEW_SHOT_EXAMPLES}
 
-### Chapter Summary:
+### 📚 Chapter Summary:
 {chunk_trimmed}
 
-### Past NEET Questions:
+### 📝 Past NEET Questions:
 {past_trimmed}
 """
 
@@ -102,7 +110,7 @@ def create_pdf_download(content):
 def show_predict_neet_tab(openai_key):
     st.header("🚙 Predict NEET MCQs Only")
 
-    # ✅ Initialize session state variables
+    # Initialize session state variables
     if "chapter_text_map" not in st.session_state:
         st.session_state.chapter_text_map = {}
 
