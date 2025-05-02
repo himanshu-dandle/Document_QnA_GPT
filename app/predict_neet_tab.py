@@ -53,7 +53,7 @@ def generate_mcqs_from_combined_text(
         difficulty_instruction = f"\n- Only include {difficulty_filter.lower()} difficulty questions." if difficulty_filter != "All" else ""
 
         prompt = f"""
-You are a senior NEET Physics paper setter with expertise in recent question trends (NEET 2023, 2024, etc.).
+You are a senior and very expoert  NEET UG examination  paper setter with expertise in recent question trends (NEET 2023, 2024, etc.) and  who can predict the questions  for year 2025 which will held on 4-may-2025
 
 Your task is to generate {questions_per_chunk} **NEET-style MCQs only** (no descriptive), with the following criteria:
 - Ensure a balance between conceptual and numerical questions (aim for ~50% conceptual).
@@ -102,7 +102,7 @@ def create_pdf_download(content):
 def show_predict_neet_tab(openai_key):
     st.header("🚙 Predict NEET MCQs Only")
 
-    # ✅ Fix: Initialize session state variables here (important for Streamlit Cloud)
+    # ✅ Initialize session state variables
     if "chapter_text_map" not in st.session_state:
         st.session_state.chapter_text_map = {}
 
@@ -112,15 +112,15 @@ def show_predict_neet_tab(openai_key):
     if "past_questions_text" not in st.session_state:
         st.session_state.past_questions_text = ""
 
-    subject = st.selectbox("🧪 Select Subject", ["Physics", "Chemistry", "Biology"])
-    question_type = st.radio("⚙️ Question Type", ["Mixed", "Conceptual Only", "Numerical Only"])
-    difficulty = st.selectbox("🎯 Focus on Difficulty Level", ["All", "Easy", "Medium", "Hard"])
-    num_questions = st.selectbox("🔹 Number of MCQs to Generate", [5, 10, 20, 25, 30, 50], index=3)
-    exclude_logic = st.toggle("🚫 Exclude Logic/Digital Electronics Questions", value=False)
+    subject = st.selectbox("🧪 Select Subject", ["Physics", "Chemistry", "Biology"], key="neet_subject_select")
+    question_type = st.radio("⚙️ Question Type", ["Mixed", "Conceptual Only", "Numerical Only"], key="neet_qtype_radio")
+    difficulty = st.selectbox("🎯 Focus on Difficulty Level", ["All", "Easy", "Medium", "Hard"], key="neet_difficulty_select")
+    num_questions = st.selectbox("🔹 Number of MCQs to Generate", [5, 10, 20, 25, 30, 50], index=3, key="neet_num_questions_select")
+    exclude_logic = st.toggle("🚫 Exclude Logic/Digital Electronics Questions", value=False, key="neet_exclude_logic_toggle")
 
     # Upload PDFs
-    chapter_pdfs = st.file_uploader("📄 Upload ALL Chapter PDFs", type="pdf", key="predict_chapter", accept_multiple_files=True)
-    past_papers_pdfs = st.file_uploader("📄 Upload Past NEET Question Papers (1 or more)", type="pdf", key="predict_papers", accept_multiple_files=True)
+    chapter_pdfs = st.file_uploader("📄 Upload ALL Chapter PDFs", type="pdf", key="predict_chapter_upload", accept_multiple_files=True)
+    past_papers_pdfs = st.file_uploader("📄 Upload Past NEET Question Papers (1 or more)", type="pdf", key="predict_papers_upload", accept_multiple_files=True)
 
     if chapter_pdfs:
         for pdf in chapter_pdfs:
@@ -134,15 +134,15 @@ def show_predict_neet_tab(openai_key):
 
     available_chapters = [c for c in st.session_state.chapter_text_map if c not in st.session_state.used_chapter_names]
     if available_chapters:
-        selected_chapters = st.multiselect("📌 Select Chapter(s) to focus (leave empty for all unused)", available_chapters, default=available_chapters)
+        selected_chapters = st.multiselect("📌 Select Chapter(s) to focus (leave empty for all unused)", available_chapters, default=available_chapters, key="neet_chapter_multiselect")
     else:
         selected_chapters = []
 
-    if st.button("🔁 Reset Used Chapters"):
+    if st.button("🔁 Reset Used Chapters", key="neet_reset_button"):
         st.session_state.used_chapter_names.clear()
         st.success("✅ Chapters reset! You can now reuse all uploaded chapters.")
 
-    if st.button("🔮 Generate NEET MCQs"):
+    if st.button("🔮 Generate NEET MCQs", key="neet_generate_button"):
         if not selected_chapters:
             st.error("⚠️ No chapters selected or available. Upload more PDFs or reset the app.")
             return
@@ -163,7 +163,7 @@ def show_predict_neet_tab(openai_key):
 
         st.success(f"Here are {num_questions} NEET-style MCQs:")
         st.markdown(f"""```text\n{mcqs}```""")
-        st.download_button("⬇️ Download MCQs PDF", create_pdf_download(mcqs), file_name="mcqs.pdf")
+        st.download_button("⬇️ Download MCQs PDF", create_pdf_download(mcqs), file_name="mcqs.pdf", key="neet_download_button")
 
     elif not chapter_pdfs or not past_papers_pdfs:
         st.info("📥 Please upload both chapter PDFs and at least one NEET question paper PDF.")
